@@ -52,12 +52,10 @@
             }
         }
 
-        /* --- Tipografía y Títulos --- */
         h1, h2 { font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
         .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
 
-        /* --- Paneles y Layout --- */
-        .view-section { padding: 30px; flex-grow: 1; display: none; flex-direction: column; }
+        .view-section { padding: 30px; flex-grow: 1; display: none; flex-direction: column; overflow-y: auto;}
         .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
         
         @keyframes fadeIn {
@@ -73,7 +71,6 @@
             margin-bottom: 20px;
         }
 
-        /* --- Formularios y Botones --- */
         input[type="text"], input[type="password"], input[type="time"] {
             width: 100%;
             padding: 14px;
@@ -105,7 +102,6 @@
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6); }
         button:disabled { background: #334155; box-shadow: none; cursor: not-allowed; transform: none; }
 
-        /* --- Pestañas de Navegación --- */
         .tab-bar {
             display: flex;
             background: rgba(0, 0, 0, 0.4);
@@ -132,7 +128,6 @@
         .tab-btn.active { color: var(--primary); }
         .tab-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
-        /* --- Elementos Visuales Específicos --- */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 5px; }
         
@@ -140,27 +135,9 @@
         .logout-btn { background: transparent; box-shadow: none; color: var(--danger); width: auto; padding: 5px 10px; font-size: 0.9rem; }
         .logout-btn:hover { background: rgba(239, 68, 68, 0.1); box-shadow: none; transform: none; }
 
-        /* Slider estético */
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            outline: none;
-            margin: 15px 0;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
-        }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; outline: none; margin: 15px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 10px rgba(99, 102, 241, 0.8); }
 
-        /* Toggle Switch estético */
         .toggle-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-weight: 600;}
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -169,20 +146,26 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* Zona de subida de archivos */
-        .upload-area {
-            border: 2px dashed var(--glass-border);
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-            background: rgba(0,0,0,0.1);
-        }
+        .upload-area { border: 2px dashed var(--glass-border); border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 15px; background: rgba(0,0,0,0.1); }
         .upload-area:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
         .upload-area input[type="file"] { display: none; }
         #canvas-preview { max-width: 100%; border-radius: 12px; display: none; margin-top: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        
+        /* --- ESTILOS DE LA GALERÍA --- */
+        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .gallery-item { position: relative; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .gallery-item img { width: 100%; height: 120px; object-fit: cover; display: block; opacity: 0.9; transition: opacity 0.3s;}
+        .gallery-item:hover img { opacity: 1; }
+        .btn-delete {
+            position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9);
+            color: white; border: none; border-radius: 8px; width: 32px; height: 32px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            padding: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: background 0.2s;
+        }
+        .btn-delete:hover { background: #dc2626; transform: scale(1.1); }
+        .btn-delete svg { width: 18px; height: 18px; fill: white; }
+        .loading-text { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px; }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -213,7 +196,6 @@
                 <h2>Mi Marco</h2>
                 <button id="btn-logout" class="logout-btn">Cerrar Sesión</button>
             </div>
-            
             <div class="card">
                 <div class="subtitle" style="margin-bottom: 15px;">Estado del Hardware</div>
                 <div class="stats-grid">
@@ -230,31 +212,33 @@
         </div>
 
         <div id="tab-upload" class="view-section">
-            <h2>Enviar Foto</h2>
-            <div class="subtitle">La imagen se adaptará a 480x320 de forma automática.</div>
-            
+            <h2>Añadir Foto</h2>
+            <div class="subtitle">La imagen se adaptará a 480x320 automáticamente.</div>
             <div class="card">
                 <label class="upload-area" id="drop-zone">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--text-muted)" style="margin-bottom: 10px;">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                     </svg>
                     <div style="font-weight: 600;">Toca para elegir una foto</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Formatos admitidos: JPG, PNG, WEBP</div>
                     <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp">
                 </label>
-                
                 <img id="canvas-preview" alt="Vista previa">
                 <canvas id="canvas-processor" width="480" height="320" style="display:none;"></canvas>
-                
                 <button id="btn-upload" disabled style="margin-top: 15px;">Selecciona una imagen</button>
                 <p id="upload-status" style="text-align: center; color: var(--accent); font-size: 0.9rem; font-weight: 600; margin-top: 15px;"></p>
             </div>
         </div>
 
+        <div id="tab-gallery" class="view-section">
+            <h2>Mi Galería</h2>
+            <div class="subtitle">Gestiona las fotos guardadas en la nube.</div>
+            <div id="gallery-container" class="gallery-grid">
+                </div>
+        </div>
+
         <div id="tab-settings" class="view-section">
             <h2>Configuración</h2>
             <div class="subtitle">Ajustes de visualización y energía</div>
-
             <div class="card">
                 <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 5px;">
                     <span>Brillo de Pantalla</span>
@@ -262,7 +246,6 @@
                 </div>
                 <input type="range" id="slider-brillo" min="0" max="255" value="255">
             </div>
-
             <div class="card">
                 <div class="toggle-container">
                     <span>Horario Nocturno</span>
@@ -272,7 +255,6 @@
                     </label>
                 </div>
                 <div class="subtitle" style="margin-bottom: 15px;">Apaga la pantalla automáticamente.</div>
-                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Se apaga a las:</div>
@@ -293,7 +275,11 @@
             </button>
             <button class="tab-btn" onclick="switchTab('tab-upload', this)">
                 <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-                Foto
+                Subir
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-gallery', this)">
+                <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>
+                Galería
             </button>
             <button class="tab-btn" onclick="switchTab('tab-settings', this)">
                 <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 C9.57,21.83,9.77,22,10.01,22h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
@@ -305,10 +291,11 @@
 </div>
 
 <script type="module">
+    // IMPORTANTE: Ahora también importamos listAll y deleteObject para gestionar la galería
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, listAll, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     // ---------------------------------------------------------
     // ⚠️ PEGA AQUÍ LA CONFIGURACIÓN DE TU FIREBASE ⚠️
@@ -336,9 +323,14 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         btnElement.classList.add('active');
+
+        // Si entramos a la galería, recargar las fotos
+        if (tabId === 'tab-gallery') {
+            cargarGaleria();
+        }
     }
 
-    // Autenticación
+    // --- AUTENTICACIÓN ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             loginSection.classList.remove('active');
@@ -360,7 +352,7 @@
 
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // Base de Datos
+    // --- BASE DE DATOS (Brillo, Batería, etc) ---
     function iniciarEscuchaBaseDatos() {
         onValue(ref(database, 'estado'), (snapshot) => {
             const data = snapshot.val();
@@ -403,7 +395,7 @@
     document.getElementById('time-inicio').addEventListener('change', actualizarConfiguracion);
     document.getElementById('time-fin').addEventListener('change', actualizarConfiguracion);
 
-    // Procesamiento y Subida de Imagen
+    // --- PROCESAMIENTO Y SUBIDA DE IMÁGENES ---
     const fileInput = document.getElementById('file-input');
     const btnUpload = document.getElementById('btn-upload');
     const canvas = document.getElementById('canvas-processor');
@@ -463,21 +455,91 @@
             await uploadBytes(fileRef, blobListoParaSubir);
             const urlDescarga = await getDownloadURL(fileRef);
 
+            // Avisar al ESP32 por Base de Datos
             await update(ref(database, 'fotos'), {
                 ultima_subida: urlDescarga,
-                timestamp: Date.now()
+                nombre_archivo: nombreArchivo,
+                timestamp: Date.now(),
+                accion: "nueva_foto" 
             });
 
             document.getElementById('upload-status').style.color = "var(--accent)";
             document.getElementById('upload-status').innerText = "¡Enviada con éxito!";
             btnUpload.innerText = "Enviar otra foto";
+            
+            // Limpiamos el selector
+            blobListoParaSubir = null;
         } catch (error) {
             console.error(error);
             document.getElementById('upload-status').style.color = "var(--danger)";
-            document.getElementById('upload-status').innerText = "Error en el envío. Revisa la consola.";
+            document.getElementById('upload-status').innerText = "Error en el envío.";
             btnUpload.disabled = false;
         }
     });
+
+    // --- CARGAR Y ELIMINAR FOTOS (GALERÍA) ---
+    async function cargarGaleria() {
+        const galleryContainer = document.getElementById('gallery-container');
+        galleryContainer.innerHTML = '<div class="loading-text">Cargando fotos de la nube...</div>';
+        
+        const listRef = storageRef(storage, 'fotos_marco');
+        
+        try {
+            const res = await listAll(listRef);
+            galleryContainer.innerHTML = ''; // Limpiamos el mensaje de carga
+
+            if (res.items.length === 0) {
+                galleryContainer.innerHTML = '<div class="loading-text">No hay fotos guardadas en la nube.</div>';
+                return;
+            }
+
+            // Recorremos todas las fotos encontradas
+            res.items.forEach(async (itemRef) => {
+                const url = await getDownloadURL(itemRef);
+                
+                // Creamos la "tarjeta" de la foto
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'gallery-item';
+                
+                // Añadimos la imagen y el botón de borrar
+                itemDiv.innerHTML = `
+                    <img src="${url}" alt="Foto del marco">
+                    <button class="btn-delete" title="Eliminar foto">
+                        <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                `;
+
+                // Lógica para el botón de borrar de esta foto específica
+                const btnDelete = itemDiv.querySelector('.btn-delete');
+                btnDelete.addEventListener('click', async () => {
+                    if(confirm("¿Seguro que quieres eliminar esta foto de la nube?")) {
+                        try {
+                            btnDelete.innerHTML = "..."; // Indicador de que está borrando
+                            await deleteObject(itemRef);
+                            itemDiv.remove(); // Quitamos la foto de la pantalla
+                            
+                            // Avisamos al ESP32 de que se ha borrado una foto
+                            await update(ref(database, 'fotos'), {
+                                accion: "borrar_foto",
+                                nombre_archivo: itemRef.name,
+                                timestamp: Date.now()
+                            });
+
+                        } catch (error) {
+                            alert("Hubo un error al intentar eliminar la foto.");
+                            console.error(error);
+                        }
+                    }
+                });
+
+                galleryContainer.appendChild(itemDiv);
+            });
+
+        } catch (error) {
+            console.error(error);
+            galleryContainer.innerHTML = '<div class="loading-text" style="color: var(--danger)">Error al cargar la galería.</div>';
+        }
+    }
 </script>
 </body>
 </html>
