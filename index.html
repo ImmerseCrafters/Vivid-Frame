@@ -3,158 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivid Frame - Panel de Control</title>
+    <title>Vivid Frame | Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --primary: #00e676;
-            --text: #ffffff;
-            --text-muted: #aaaaaa;
+            --bg-grad-1: #0f172a;
+            --bg-grad-2: #1e1b4b;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
-        .container {
+
+        .app-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 480px;
+            min-height: 100vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .panel {
-            background-color: var(--panel-bg);
-            padding: 25px;
-            border-radius: 12px;
+
+        @media (min-width: 500px) {
+            .app-container {
+                min-height: 85vh;
+                border-radius: 24px;
+                margin: 20px;
+                overflow: hidden;
+            }
+        }
+
+        /* --- Tipografía y Títulos --- */
+        h1, h2 { font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
+
+        /* --- Paneles y Layout --- */
+        .view-section { padding: 30px; flex-grow: 1; display: none; flex-direction: column; }
+        .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        h1, h2, h3 { margin-top: 0; }
-        .hidden { display: none !important; }
+
+        /* --- Formularios y Botones --- */
         input[type="text"], input[type="password"], input[type="time"] {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #2a2a2a;
+            padding: 14px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.3);
             color: white;
+            font-size: 1rem;
             box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
         }
+        input:focus { border-color: var(--primary); }
+
         button {
-            background-color: var(--primary);
-            color: #000;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
             width: 100%;
-            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
-        button:hover { background-color: #00c853; }
-        .btn-logout { background-color: #ff5252; color: white; margin-top: 0; width: auto; float: right; }
-        .btn-logout:hover { background-color: #ff1744; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6); }
+        button:disabled { background: #334155; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        /* --- Pestañas de Navegación --- */
+        .tab-bar {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid var(--glass-border);
+            padding: 10px;
+            justify-content: space-around;
         }
-        .stat-box {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
+        .tab-btn {
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 10px;
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { transform: none; color: white; background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* --- Elementos Visuales Específicos --- */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 5px; }
+        
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .logout-btn { background: transparent; box-shadow: none; color: var(--danger); width: auto; padding: 5px 10px; font-size: 0.9rem; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); box-shadow: none; transform: none; }
+
+        /* Slider estético */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            outline: none;
+            margin: 15px 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+        }
+
+        /* Toggle Switch estético */
+        .toggle-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-weight: 600;}
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Zona de subida de archivos */
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 30px 20px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.1);
         }
-        .stat-value { font-size: 24px; font-weight: bold; color: var(--primary); }
-        .control-group { margin-bottom: 20px; }
-        input[type="range"] { width: 100%; }
-        #canvas-preview { max-width: 100%; display: none; margin-top: 15px; border-radius: 8px; border: 2px solid #333; }
+        .upload-area:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
+        .upload-area input[type="file"] { display: none; }
+        #canvas-preview { max-width: 100%; border-radius: 12px; display: none; margin-top: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="login-section" class="panel">
-        <h1>Vivid Frame</h1>
-        <p style="color: var(--text-muted)">Inicia sesión para controlar tu marco.</p>
-        <input type="text" id="email" placeholder="Correo electrónico">
-        <input type="password" id="password" placeholder="Contraseña">
-        <button id="btn-login">Entrar</button>
-        <p id="login-error" style="color: #ff5252; text-align: center; display: none;">Error de credenciales</p>
+<div class="app-container">
+
+    <div id="login-section" class="view-section active" style="justify-content: center;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--primary)" style="margin-bottom: 15px;">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/>
+            </svg>
+            <h1>Vivid Frame</h1>
+            <div class="subtitle">Conecta con tus recuerdos</div>
+        </div>
+        <div class="card">
+            <input type="text" id="email" placeholder="Correo electrónico">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button id="btn-login">Iniciar Sesión</button>
+            <p id="login-error" style="color: var(--danger); text-align: center; font-size: 0.9rem; display: none; margin-top: 15px;">Credenciales incorrectas</p>
+        </div>
     </div>
 
-    <div id="dashboard-section" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="margin:0;">Vivid Frame</h1>
-            <button id="btn-logout" class="btn-logout">Salir</button>
-        </div>
-
-        <div class="panel">
-            <h2>Estado del Dispositivo</h2>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div style="font-size: 14px; color: var(--text-muted);">Batería</div>
-                    <div id="val-bateria" class="stat-value">--%</div>
-                </div>
-                <div class="stat-box">
-                    <div style="font-size: 14px; color: var(--text-muted);">SD Libre</div>
-                    <div id="val-sd" class="stat-value">-- MB</div>
+    <div id="main-app" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+        
+        <div id="tab-status" class="view-section active">
+            <div class="header-bar">
+                <h2>Mi Marco</h2>
+                <button id="btn-logout" class="logout-btn">Cerrar Sesión</button>
+            </div>
+            
+            <div class="card">
+                <div class="subtitle" style="margin-bottom: 15px;">Estado del Hardware</div>
+                <div class="stats-grid">
+                    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Nivel de Batería</div>
+                        <div id="val-bateria" class="stat-value">--%</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Almacenamiento</div>
+                        <div id="val-sd" class="stat-value" style="color: var(--primary);">-- MB</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
-            <h2>Configuración de Pantalla</h2>
+        <div id="tab-upload" class="view-section">
+            <h2>Enviar Foto</h2>
+            <div class="subtitle">La imagen se adaptará a 480x320 de forma automática.</div>
             
-            <div class="control-group">
-                <label>Brillo: <span id="val-brillo">255</span></label>
+            <div class="card">
+                <label class="upload-area" id="drop-zone">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--text-muted)" style="margin-bottom: 10px;">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    <div style="font-weight: 600;">Toca para elegir una foto</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Formatos admitidos: JPG, PNG, WEBP</div>
+                    <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp">
+                </label>
+                
+                <img id="canvas-preview" alt="Vista previa">
+                <canvas id="canvas-processor" width="480" height="320" style="display:none;"></canvas>
+                
+                <button id="btn-upload" disabled style="margin-top: 15px;">Selecciona una imagen</button>
+                <p id="upload-status" style="text-align: center; color: var(--accent); font-size: 0.9rem; font-weight: 600; margin-top: 15px;"></p>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="view-section">
+            <h2>Configuración</h2>
+            <div class="subtitle">Ajustes de visualización y energía</div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 5px;">
+                    <span>Brillo de Pantalla</span>
+                    <span id="val-brillo" style="color: var(--primary);">255</span>
+                </div>
                 <input type="range" id="slider-brillo" min="0" max="255" value="255">
             </div>
 
-            <div class="control-group" style="background: #2a2a2a; padding: 15px; border-radius: 8px;">
-                <label style="display: flex; align-items: center; font-weight: bold; margin-bottom: 10px;">
-                    <input type="checkbox" id="check-nocturno" style="width: 20px; height: 20px; margin-right: 10px;">
-                    Activar Horario Nocturno (Apagar Pantalla)
-                </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="card">
+                <div class="toggle-container">
+                    <span>Horario Nocturno</span>
+                    <label class="switch">
+                        <input type="checkbox" id="check-nocturno">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="subtitle" style="margin-bottom: 15px;">Apaga la pantalla automáticamente.</div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Hora de Apagado</label>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Se apaga a las:</div>
                         <input type="time" id="time-inicio" value="23:00">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Hora de Encendido</label>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Se enciende a las:</div>
                         <input type="time" id="time-fin" value="07:00">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
-            <h2>Enviar Foto</h2>
-            <p style="font-size: 14px; color: var(--text-muted);">La imagen se redimensionará automáticamente a 480x320 antes de enviarse.</p>
-            <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" style="margin-bottom: 10px; color: white;">
-            <button id="btn-upload" disabled style="background-color: #555;">Selecciona una foto primero</button>
-            <p id="upload-status" style="text-align: center; color: var(--primary);"></p>
-            
-            <canvas id="canvas-processor" width="480" height="320" style="display:none;"></canvas>
-            <img id="canvas-preview" alt="Vista previa">
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('tab-status', this)">
+                <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                Estado
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-upload', this)">
+                <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                Foto
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-settings', this)">
+                <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 C9.57,21.83,9.77,22,10.01,22h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                Ajustes
+            </button>
         </div>
     </div>
+
 </div>
 
 <script type="module">
-    // Importamos las funciones necesarias del SDK v10 de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     // ---------------------------------------------------------
-    // ⚠️ ATENCIÓN: PEGA AQUÍ LA CONFIGURACIÓN DE TU FIREBASE ⚠️
+    // ⚠️ PEGA AQUÍ LA CONFIGURACIÓN DE TU FIREBASE ⚠️
     // ---------------------------------------------------------
     const firebaseConfig = {
   apiKey: "AIzaSyA2_2YmpeXsXRD7V5qgXfuAc-sJLXAV8iM",
@@ -165,41 +322,46 @@
   appId: "1:514574497473:web:1b0ea2eb554b46d4078640"
 };
 
-    // Inicializamos Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
     const storage = getStorage(app);
 
-    // Referencias del DOM
     const loginSection = document.getElementById('login-section');
-    const dashboardSection = document.getElementById('dashboard-section');
-    
-    // --- LÓGICA DE AUTENTICACIÓN ---
+    const mainApp = document.getElementById('main-app');
+
+    // Navegación por Pestañas
+    window.switchTab = function(tabId, btnElement) {
+        document.querySelectorAll('.view-section').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    // Autenticación
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            loginSection.classList.add('hidden');
-            dashboardSection.classList.remove('hidden');
+            loginSection.classList.remove('active');
+            mainApp.classList.remove('hidden');
             iniciarEscuchaBaseDatos();
         } else {
-            loginSection.classList.remove('hidden');
-            dashboardSection.classList.add('hidden');
+            loginSection.classList.add('active');
+            mainApp.classList.add('hidden');
         }
     });
 
     document.getElementById('btn-login').addEventListener('click', () => {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
-        signInWithEmailAndPassword(auth, email, pass).catch(error => {
+        signInWithEmailAndPassword(auth, email, pass).catch(() => {
             document.getElementById('login-error').style.display = 'block';
         });
     });
 
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // --- LÓGICA DE BASE DE DATOS (Tiempo Real) ---
+    // Base de Datos
     function iniciarEscuchaBaseDatos() {
-        // Escuchar el hardware (ESP32 escribe, Web lee)
         onValue(ref(database, 'estado'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -208,26 +370,22 @@
             }
         });
 
-        // Escuchar configuración inicial para posicionar los botones (Web lee)
         onValue(ref(database, 'configuracion'), (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Brillo
                 if(data.brillo !== undefined) {
                     document.getElementById('slider-brillo').value = data.brillo;
                     document.getElementById('val-brillo').innerText = data.brillo;
                 }
-                // Horario Nocturno
                 if(data.horario_nocturno) {
                     document.getElementById('check-nocturno').checked = data.horario_nocturno.activado;
                     document.getElementById('time-inicio').value = data.horario_nocturno.inicio;
                     document.getElementById('time-fin').value = data.horario_nocturno.fin;
                 }
             }
-        }, { onlyOnce: true }); // Solo leemos 1 vez para no sobreescribir mientras el usuario toca la web
+        }, { onlyOnce: true });
     }
 
-    // Guardar cambios de configuración en Firebase (Web escribe, ESP32 leerá)
     function actualizarConfiguracion() {
         update(ref(database, 'configuracion'), {
             brillo: parseInt(document.getElementById('slider-brillo').value),
@@ -239,16 +397,13 @@
         });
     }
 
-    // Eventos que disparan la actualización a la base de datos
-    document.getElementById('slider-brillo').addEventListener('input', (e) => {
-        document.getElementById('val-brillo').innerText = e.target.value;
-    });
+    document.getElementById('slider-brillo').addEventListener('input', (e) => document.getElementById('val-brillo').innerText = e.target.value);
     document.getElementById('slider-brillo').addEventListener('change', actualizarConfiguracion);
     document.getElementById('check-nocturno').addEventListener('change', actualizarConfiguracion);
     document.getElementById('time-inicio').addEventListener('change', actualizarConfiguracion);
     document.getElementById('time-fin').addEventListener('change', actualizarConfiguracion);
 
-    // --- LÓGICA DE PROCESAMIENTO DE IMAGEN Y SUBIDA ---
+    // Procesamiento y Subida de Imagen
     const fileInput = document.getElementById('file-input');
     const btnUpload = document.getElementById('btn-upload');
     const canvas = document.getElementById('canvas-processor');
@@ -256,7 +411,9 @@
     const preview = document.getElementById('canvas-preview');
     let blobListoParaSubir = null;
 
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', procesarImagen);
+
+    function procesarImagen(e) {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -264,7 +421,6 @@
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
-                // Dibujar imagen redimensionada y centrada (Recorte inteligente a 480x320)
                 const targetRatio = 480 / 320;
                 const imgRatio = img.width / img.height;
                 let drawWidth = 480, drawHeight = 320, offsetX = 0, offsetY = 0;
@@ -279,54 +435,46 @@
                     ctx.drawImage(img, 0, offsetY, img.width, drawHeight, 0, 0, 480, 320);
                 }
 
-                // Mostrar vista previa
                 preview.src = canvas.toDataURL('image/jpeg', 0.8);
                 preview.style.display = 'block';
 
-                // Convertir Canvas a Blob (Archivo listo para subir)
                 canvas.toBlob((blob) => {
                     blobListoParaSubir = blob;
                     btnUpload.disabled = false;
-                    btnUpload.style.backgroundColor = "var(--primary)";
-                    btnUpload.innerText = "Subir al Marco Digital";
-                }, 'image/jpeg', 0.8); // 80% de calidad JPEG
+                    btnUpload.innerText = "Enviar al Marco (Vivid Frame)";
+                }, 'image/jpeg', 0.8);
             };
             img.src = event.target.result;
         };
         reader.readAsDataURL(file);
-    });
+    }
 
-    // Subir a Firebase Storage y actualizar Base de Datos
     btnUpload.addEventListener('click', async () => {
         if (!blobListoParaSubir) return;
         
         btnUpload.disabled = true;
-        btnUpload.innerText = "Subiendo...";
+        btnUpload.innerText = "Enviando...";
         document.getElementById('upload-status').innerText = "";
 
-        // Generamos un nombre único usando la fecha
         const nombreArchivo = `foto_${Date.now()}.jpg`;
         const fileRef = storageRef(storage, `fotos_marco/${nombreArchivo}`);
 
         try {
-            // 1. Subir al Storage
             await uploadBytes(fileRef, blobListoParaSubir);
-            
-            // 2. Obtener URL pública
             const urlDescarga = await getDownloadURL(fileRef);
 
-            // 3. Escribir la URL en Realtime Database para que el ESP32 la detecte
             await update(ref(database, 'fotos'), {
                 ultima_subida: urlDescarga,
                 timestamp: Date.now()
             });
 
-            document.getElementById('upload-status').innerText = "¡Foto enviada con éxito!";
-            btnUpload.innerText = "Subir otra foto";
+            document.getElementById('upload-status').style.color = "var(--accent)";
+            document.getElementById('upload-status').innerText = "¡Enviada con éxito!";
+            btnUpload.innerText = "Enviar otra foto";
         } catch (error) {
             console.error(error);
-            document.getElementById('upload-status').style.color = "#ff5252";
-            document.getElementById('upload-status').innerText = "Error al subir la foto.";
+            document.getElementById('upload-status').style.color = "var(--danger)";
+            document.getElementById('upload-status').innerText = "Error en el envío. Revisa la consola.";
             btnUpload.disabled = false;
         }
     });
