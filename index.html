@@ -71,7 +71,7 @@
             margin-bottom: 20px;
         }
 
-        input[type="text"], input[type="password"], input[type="time"] {
+        input[type="text"], input[type="password"], input[type="time"], input[type="number"] {
             width: 100%;
             padding: 14px;
             margin-bottom: 15px;
@@ -151,7 +151,6 @@
         .upload-area input[type="file"] { display: none; }
         #canvas-preview { max-width: 100%; border-radius: 12px; display: none; margin-top: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         
-        /* --- ESTILOS DE LA GALERÍA --- */
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
         .gallery-item { position: relative; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .gallery-item img { width: 100%; height: 120px; object-fit: cover; display: block; opacity: 0.9; transition: opacity 0.3s;}
@@ -165,7 +164,6 @@
         .btn-delete:hover { background: #dc2626; transform: scale(1.1); }
         .btn-delete svg { width: 18px; height: 18px; fill: white; }
         .loading-text { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 20px; }
-
         .hidden { display: none !important; }
     </style>
 </head>
@@ -238,7 +236,23 @@
 
         <div id="tab-settings" class="view-section">
             <h2>Configuración</h2>
-            <div class="subtitle">Ajustes de visualización y energía</div>
+            <div class="subtitle">Ajustes de visualización y reproducción</div>
+            
+            <div class="card">
+                <div class="subtitle" style="margin-bottom: 15px; color: white; font-weight: 600;">Modo de Reproducción</div>
+                <div class="toggle-container" style="margin-bottom: 20px;">
+                    <span style="font-size: 0.9rem; font-weight: normal;">Tiempo por foto (segundos):</span>
+                    <input type="number" id="num-intervalo" min="5" value="30" style="width: 80px; margin: 0; text-align: center; padding: 8px;">
+                </div>
+                <div class="toggle-container" style="margin-bottom: 0;">
+                    <span style="font-size: 0.9rem; font-weight: normal;">Orden Aleatorio</span>
+                    <label class="switch">
+                        <input type="checkbox" id="check-aleatorio">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 5px;">
                     <span>Brillo de Pantalla</span>
@@ -246,6 +260,7 @@
                 </div>
                 <input type="range" id="slider-brillo" min="0" max="255" value="255">
             </div>
+
             <div class="card">
                 <div class="toggle-container">
                     <span>Horario Nocturno</span>
@@ -291,7 +306,6 @@
 </div>
 
 <script type="module">
-    // IMPORTANTE: Ahora también importamos listAll y deleteObject para gestionar la galería
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
@@ -317,20 +331,14 @@
     const loginSection = document.getElementById('login-section');
     const mainApp = document.getElementById('main-app');
 
-    // Navegación por Pestañas
     window.switchTab = function(tabId, btnElement) {
         document.querySelectorAll('.view-section').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         btnElement.classList.add('active');
-
-        // Si entramos a la galería, recargar las fotos
-        if (tabId === 'tab-gallery') {
-            cargarGaleria();
-        }
+        if (tabId === 'tab-gallery') cargarGaleria();
     }
 
-    // --- AUTENTICACIÓN ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             loginSection.classList.remove('active');
@@ -352,7 +360,6 @@
 
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // --- BASE DE DATOS (Brillo, Batería, etc) ---
     function iniciarEscuchaBaseDatos() {
         onValue(ref(database, 'estado'), (snapshot) => {
             const data = snapshot.val();
@@ -374,6 +381,11 @@
                     document.getElementById('time-inicio').value = data.horario_nocturno.inicio;
                     document.getElementById('time-fin').value = data.horario_nocturno.fin;
                 }
+                // --- NUEVO: Leer datos del carrusel ---
+                if(data.carrusel) {
+                    document.getElementById('num-intervalo').value = data.carrusel.intervalo;
+                    document.getElementById('check-aleatorio').checked = data.carrusel.aleatorio;
+                }
             }
         }, { onlyOnce: true });
     }
@@ -385,17 +397,26 @@
                 activado: document.getElementById('check-nocturno').checked,
                 inicio: document.getElementById('time-inicio').value,
                 fin: document.getElementById('time-fin').value
+            },
+            // --- NUEVO: Guardar datos del carrusel ---
+            carrusel: {
+                intervalo: parseInt(document.getElementById('num-intervalo').value) || 30,
+                aleatorio: document.getElementById('check-aleatorio').checked
             }
         });
     }
 
+    // Eventos para escuchar cambios en los ajustes
     document.getElementById('slider-brillo').addEventListener('input', (e) => document.getElementById('val-brillo').innerText = e.target.value);
     document.getElementById('slider-brillo').addEventListener('change', actualizarConfiguracion);
     document.getElementById('check-nocturno').addEventListener('change', actualizarConfiguracion);
     document.getElementById('time-inicio').addEventListener('change', actualizarConfiguracion);
     document.getElementById('time-fin').addEventListener('change', actualizarConfiguracion);
+    
+    // --- NUEVO: Eventos del carrusel ---
+    document.getElementById('num-intervalo').addEventListener('change', actualizarConfiguracion);
+    document.getElementById('check-aleatorio').addEventListener('change', actualizarConfiguracion);
 
-    // --- PROCESAMIENTO Y SUBIDA DE IMÁGENES ---
     const fileInput = document.getElementById('file-input');
     const btnUpload = document.getElementById('btn-upload');
     const canvas = document.getElementById('canvas-processor');
@@ -455,7 +476,6 @@
             await uploadBytes(fileRef, blobListoParaSubir);
             const urlDescarga = await getDownloadURL(fileRef);
 
-            // Avisar al ESP32 por Base de Datos
             await update(ref(database, 'fotos'), {
                 ultima_subida: urlDescarga,
                 nombre_archivo: nombreArchivo,
@@ -466,8 +486,6 @@
             document.getElementById('upload-status').style.color = "var(--accent)";
             document.getElementById('upload-status').innerText = "¡Enviada con éxito!";
             btnUpload.innerText = "Enviar otra foto";
-            
-            // Limpiamos el selector
             blobListoParaSubir = null;
         } catch (error) {
             console.error(error);
@@ -477,31 +495,24 @@
         }
     });
 
-    // --- CARGAR Y ELIMINAR FOTOS (GALERÍA) ---
     async function cargarGaleria() {
         const galleryContainer = document.getElementById('gallery-container');
         galleryContainer.innerHTML = '<div class="loading-text">Cargando fotos de la nube...</div>';
-        
         const listRef = storageRef(storage, 'fotos_marco');
         
         try {
             const res = await listAll(listRef);
-            galleryContainer.innerHTML = ''; // Limpiamos el mensaje de carga
+            galleryContainer.innerHTML = ''; 
 
             if (res.items.length === 0) {
                 galleryContainer.innerHTML = '<div class="loading-text">No hay fotos guardadas en la nube.</div>';
                 return;
             }
 
-            // Recorremos todas las fotos encontradas
             res.items.forEach(async (itemRef) => {
                 const url = await getDownloadURL(itemRef);
-                
-                // Creamos la "tarjeta" de la foto
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'gallery-item';
-                
-                // Añadimos la imagen y el botón de borrar
                 itemDiv.innerHTML = `
                     <img src="${url}" alt="Foto del marco">
                     <button class="btn-delete" title="Eliminar foto">
@@ -509,25 +520,21 @@
                     </button>
                 `;
 
-                // Lógica para el botón de borrar de esta foto específica
                 const btnDelete = itemDiv.querySelector('.btn-delete');
                 btnDelete.addEventListener('click', async () => {
                     if(confirm("¿Seguro que quieres eliminar esta foto de la nube?")) {
                         try {
-                            btnDelete.innerHTML = "..."; // Indicador de que está borrando
+                            btnDelete.innerHTML = "..."; 
                             await deleteObject(itemRef);
-                            itemDiv.remove(); // Quitamos la foto de la pantalla
+                            itemDiv.remove(); 
                             
-                            // Avisamos al ESP32 de que se ha borrado una foto
                             await update(ref(database, 'fotos'), {
                                 accion: "borrar_foto",
                                 nombre_archivo: itemRef.name,
                                 timestamp: Date.now()
                             });
-
                         } catch (error) {
                             alert("Hubo un error al intentar eliminar la foto.");
-                            console.error(error);
                         }
                     }
                 });
